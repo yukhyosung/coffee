@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☕ 복리원두 취합</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --bg: #1a1410;
+    --surface: #241e18;
+    --surface2: #2e2620;
+    --border: #3d3228;
+    --accent: #c8956c;
+    --accent2: #e8b88a;
+    --text: #f0e6d8;
+    --text2: #a08870;
+    --success: #7ab87a;
+    --danger: #e07070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 20%, #2a1f15 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 80%, #1f1a10 0%, transparent 60%);
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(26,20,16,0.95);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  nav .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--accent2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  nav .tabs { display: flex; gap: 4px; }
+  nav .tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  nav .tab.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+  }
+  nav .tab:hover:not(.active) {
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 32px 24px; max-width: 480px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HEADINGS */
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+  .subtitle { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* FORM */
+  label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 8px; font-weight: 500; }
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--text2); }
+
+  /* BEAN LIST */
+  .bean-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .bean-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .bean-item:hover { border-color: var(--accent); background: #332a22; }
+  .bean-item.selected { border-color: var(--accent); background: #332a22; }
+  .bean-item .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    font-size: 12px;
+  }
+  .bean-item.selected .check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+  .bean-item .bean-info { flex: 1; }
+  .bean-item .bean-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .bean-item .bean-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .bean-icon { font-size: 22px; }
+
+  /* BUTTON */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* SUCCESS */
+  .success-screen {
+    text-align: center;
+    padding: 40px 0;
+    display: none;
+  }
+  .success-screen.show { display: block; animation: fadeIn 0.4s ease; }
+  .success-icon { font-size: 64px; margin-bottom: 16px; }
+  .success-screen h2 { font-size: 22px; color: var(--accent2); margin-bottom: 8px; }
+  .success-screen p { color: var(--text2); font-size: 14px; }
+
+  /* ADMIN - BEAN EDITOR */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .admin-bean-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .admin-bean-name { flex: 1; font-size: 14px; }
+  .admin-bean-delete {
+    background: none; border: none;
+    color: var(--text2); cursor: pointer;
+    font-size: 16px; padding: 4px;
+    transition: color 0.2s;
+  }
+  .admin-bean-delete:hover { color: var(--danger); }
+
+  .add-bean-row {
+    display: flex; gap: 8px; margin-bottom: 24px;
+  }
+  .add-bean-row input {
+    flex: 1; margin-bottom: 0;
+  }
+  .btn-add {
+    padding: 12px 18px;
+    background: var(--accent);
+    border: none; border-radius: 10px;
+    color: var(--bg); font-size: 18px;
+    cursor: pointer; font-weight: 700;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-add:hover { background: var(--accent2); }
+
+  /* RESULTS */
+  .result-summary {
+    display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .stat-chip {
+    padding: 8px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+  }
+  .stat-chip span { color: var(--accent2); font-weight: 700; }
+
+  .result-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .result-rank {
+    width: 28px; height: 28px;
+    background: var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--text2);
+    flex-shrink: 0;
+  }
+  .result-rank.first { background: var(--accent); color: var(--bg); }
+  .result-info { flex: 1; }
+  .result-bean { font-size: 14px; font-weight: 500; }
+  .result-bar-wrap { margin-top: 4px; background: var(--border); border-radius: 4px; height: 4px; }
+  .result-bar { height: 4px; background: var(--accent); border-radius: 4px; transition: width 0.6s ease; }
+  .result-count { font-size: 13px; color: var(--accent2); font-weight: 700; flex-shrink: 0; }
+
+  .sub-result {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .sub-result .member-name { font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .sub-result .member-bean { color: var(--accent); }
+
+  .btn-csv {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .btn-csv:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty-state {
+    text-align: center; padding: 40px;
+    color: var(--text2); font-size: 14px;
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* MONTH BADGE */
+  .month-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--success); color: white;
+    padding: 12px 24px; border-radius: 24px;
+    font-size: 14px; font-weight: 500;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">☕ 복리원두</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showPage('member')">신청하기</button>
+    <button class="tab" onclick="showPage('admin')">관리자</button>
+  </div>
+</nav>
+
+<!-- 팀원 페이지 -->
+<div class="page active" id="page-member">
+  <div id="member-form">
+    <h1>이번 달 원두</h1>
+    <p class="subtitle">원하는 원두를 선택해 주세요 ☕</p>
+    <div class="month-badge" id="member-month-badge">2026년 4월</div>
+
+    <div class="card">
+      <label>이름</label>
+      <input type="text" id="member-name" placeholder="홍길동" />
+      <label>원두 선택</label>
+      <div class="bean-list" id="member-bean-list"></div>
+      <button class="btn btn-primary" onclick="submitOrder()">신청하기</button>
+    </div>
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✅</div>
+    <h2>신청 완료!</h2>
+    <p id="success-msg"></p>
+    <br>
+    <button class="btn btn-secondary" onclick="resetMemberForm()">다시 신청하기</button>
+  </div>
+</div>
+
+<!-- 관리자 페이지 -->
+<div class="page" id="page-admin">
+  <h1>관리자</h1>
+  <p class="subtitle">원두 목록 관리 및 취합 결과 확인</p>
+
+  <!-- 원두 목록 관리 -->
+  <div class="card">
+    <div class="section-title">🫘 원두 목록 설정</div>
+    <div id="admin-bean-list"></div>
+    <div class="add-bean-row">
+      <input type="text" id="new-bean-input" placeholder="원두 이름 입력" onkeydown="if(event.key==='Enter')addBean()" />
+      <button class="btn-add" onclick="addBean()">+</button>
+    </div>
+    <button class="btn btn-secondary" onclick="clearAllOrders()" style="font-size:13px;">🔄 이달 신청 초기화</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 취합 결과 -->
+  <div class="section-title">📊 취합 결과</div>
+  <div class="month-badge" id="admin-month-badge">2026년 4월</div>
+
+  <div id="result-area"></div>
+
+  <div id="member-result-area"></div>
+
+  <br>
+  <button class="btn-csv" onclick="downloadCSV()">⬇️ CSV 다운로드</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ───────── STATE ─────────
+const STORAGE_KEY = 'coffee_beans_v1';
+const ORDERS_KEY  = 'coffee_orders_v1';
+
+function getState() {
+  const defaultBeans = ['에티오피아 예가체프', '콜롬비아 수프리모', '브라질 산토스', '케냐 AA', '과테말라 안티구아'];
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { beans: defaultBeans };
+  } catch { return { beans: defaultBeans }; }
+}
+function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+function getOrders() {
+  try { return JSON.parse(localStorage.getItem(ORDERS_KEY)) || []; }
+  catch { return []; }
+}
+function saveOrders(o) { localStorage.setItem(ORDERS_KEY, JSON.stringify(o)); }
+
+// ───────── NAVIGATION ─────────
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  event.target.classList.add('active');
+  if (p === 'admin') renderAdmin();
+}
+
+// ───────── MEMBER PAGE ─────────
+let selectedBean = null;
+
+function renderMemberBeans() {
+  const list = document.getElementById('member-bean-list');
+  const state = getState();
+  list.innerHTML = '';
+  state.beans.forEach(bean => {
+    const el = document.createElement('div');
+    el.className = 'bean-item' + (selectedBean === bean ? ' selected' : '');
+    el.innerHTML = `
+      <div class="check">${selectedBean === bean ? '✓' : ''}</div>
+      <div class="bean-info">
+        <div class="bean-name">${bean}</div>
+      </div>
+      <div class="bean-icon">☕</div>`;
+    el.onclick = () => {
+      selectedBean = bean;
+      renderMemberBeans();
+    };
+    list.appendChild(el);
+  });
+  updateMonthBadge();
+}
+
+function updateMonthBadge() {
+  const now = new Date();
+  const label = `${now.getFullYear()}년 ${now.getMonth()+1}월`;
+  document.getElementById('member-month-badge').textContent = label;
+  document.getElementById('admin-month-badge').textContent = label;
+}
+
+function submitOrder() {
+  const name = document.getElementById('member-name').value.trim();
+  if (!name) { showToast('이름을 입력해주세요!'); return; }
+  if (!selectedBean) { showToast('원두를 선택해주세요!'); return; }
+
+  const orders = getOrders();
+  // 중복 체크
+  const existing = orders.findIndex(o => o.name === name);
+  if (existing >= 0) {
+    orders[existing] = { name, bean: selectedBean, time: new Date().toISOString() };
+  } else {
+    orders.push({ name, bean: selectedBean, time: new Date().toISOString() });
+  }
+  saveOrders(orders);
+
+  document.getElementById('member-form').style.display = 'none';
+  const ss = document.getElementById('success-screen');
+  ss.classList.add('show');
+  document.getElementById('success-msg').textContent = `${name}님 — ${selectedBean} 신청 완료!`;
+}
+
+function resetMemberForm() {
+  selectedBean = null;
+  document.getElementById('member-name').value = '';
+  document.getElementById('member-form').style.display = 'block';
+  document.getElementById('success-screen').classList.remove('show');
+  renderMemberBeans();
+}
+
+// ───────── ADMIN PAGE ─────────
+function renderAdmin() {
+  renderAdminBeans();
+  renderResults();
+  updateMonthBadge();
+}
+
+function renderAdminBeans() {
+  const state = getState();
+  const list = document.getElementById('admin-bean-list');
+  list.innerHTML = '';
+  if (state.beans.length === 0) {
+    list.innerHTML = '<p style="color:var(--text2);font-size:13px;margin-bottom:12px;">원두를 추가해주세요</p>';
+    return;
+  }
+  state.beans.forEach((bean, i) => {
+    const el = document.createElement('div');
+    el.className = 'admin-bean-item';
+    el.innerHTML = `
+      <span style="font-size:16px">☕</span>
+      <span class="admin-bean-name">${bean}</span>
+      <button class="admin-bean-delete" onclick="deleteBean(${i})">✕</button>`;
+    list.appendChild(el);
+  });
+}
+
+function addBean() {
+  const input = document.getElementById('new-bean-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const state = getState();
+  if (state.beans.includes(name)) { showToast('이미 있는 원두예요!'); return; }
+  state.beans.push(name);
+  saveState(state);
+  input.value = '';
+  renderAdminBeans();
+  renderMemberBeans();
+  showToast(`"${name}" 추가됐어요!`);
+}
+
+function deleteBean(i) {
+  const state = getState();
+  const name = state.beans[i];
+  state.beans.splice(i, 1);
+  saveState(state);
+  renderAdminBeans();
+  renderMemberBeans();
+  showToast(`"${name}" 삭제됐어요`);
+}
+
+function clearAllOrders() {
+  if (!confirm('이달 신청 내역을 모두 초기화할까요?')) return;
+  saveOrders([]);
+  renderResults();
+  showToast('초기화 완료!');
+}
+
+function renderResults() {
+  const orders = getOrders();
+  const resultArea = document.getElementById('result-area');
+  const memberArea = document.getElementById('member-result-area');
+
+  if (orders.length === 0) {
+    resultArea.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>아직 신청 내역이 없어요</div>`;
+    memberArea.innerHTML = '';
+    return;
+  }
+
+  // 집계
+  const counts = {};
+  orders.forEach(o => { counts[o.bean] = (counts[o.bean] || 0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0][1];
+
+  // 요약
+  resultArea.innerHTML = `
+    <div class="result-summary">
+      <div class="stat-chip">총 신청 <span>${orders.length}명</span></div>
+      <div class="stat-chip">원두 종류 <span>${sorted.length}종</span></div>
+    </div>`;
+
+  sorted.forEach(([bean, count], i) => {
+    const pct = Math.round(count/max*100);
+    const el = document.createElement('div');
+    el.className = 'result-item';
+    el.innerHTML = `
+      <div class="result-rank ${i===0?'first''}">${i+1}</div>
+      <div class="result-info">
+        <div class="result-bean">${bean}</div>
+        <div class="result-bar-wrap"><div class="result-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="result-count">${count}명</div>`;
+    resultArea.appendChild(el);
+  });
+
+  // 개인별
+  const titleEl = document.createElement('div');
+  titleEl.className = 'section-title';
+  titleEl.style.marginTop = '20px';
+  titleEl.textContent = '👤 개인별 신청 현황';
+  memberArea.innerHTML = '';
+  memberArea.appendChild(titleEl);
+
+  orders.sort((a,b) => a.name.localeCompare(b.name)).forEach(o => {
+    const el = document.createElement('div');
+    el.className = 'sub-result';
+    el.innerHTML = `<div class="member-name">${o.name}</div><div class="member-bean">☕ ${o.bean}</div>`;
+    memberArea.appendChild(el);
+  });
+}
+
+function downloadCSV() {
+  const orders = getOrders();
+  if (orders.length === 0) { showToast('신청 내역이 없어요!'); return; }
+  const now = new Date();
+  const month = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}`;
+  let csv = '\uFEFF이름,원두,신청시간\n';
+  orders.forEach(o => {
+    const t = new Date(o.time).toLocaleString('ko-KR');
+    csv += `${o.name},${o.bean},${t}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `복리원두_${month}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV 다운로드 완료!');
+}
+
+// ───────── TOAST ─────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ───────── INIT ─────────
+renderMemberBeans();
+</script>
+</body>
+</html>
